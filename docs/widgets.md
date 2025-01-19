@@ -18,7 +18,7 @@ Dashy has support for displaying dynamic content in the form of widgets. There a
   - [Crypto Wallet Balance](#wallet-balance)
   - [Code Stats](#code-stats)
   - [Mullvad Status](#mullvad-status)
-  - [Email Aliases (AnonAddy)](#anonaddy)
+  - [Email Aliases (addy.io)](#addyio)
   - [Vulnerability Feed](#vulnerability-feed)
   - [Exchange Rates](#exchange-rates)
   - [Public Holidays](#public-holidays)
@@ -34,7 +34,12 @@ Dashy has support for displaying dynamic content in the form of widgets. There a
   - [NASA APOD](#astronomy-picture-of-the-day)
   - [GitHub Trending](#github-trending)
   - [GitHub Profile Stats](#github-profile-stats)
-  - [Healthchecks Status](#healthchecks status)
+  - [Healthchecks Status](#healthchecks-status)
+  - [Hackernews Trending](#hackernews-trending)
+  - [Mvg Departure](#mvg-departure)
+  - [Mvg Connection](#mvg-connection)
+  - [Custom search](#custom-search)
+  - [Rescuetime overview](#rescuetime-overview)
 - **[Self-Hosted Services Widgets](#self-hosted-services-widgets)**
   - [System Info](#system-info)
   - [Cron Monitoring](#cron-monitoring-health-checks)
@@ -56,8 +61,13 @@ Dashy has support for displaying dynamic content in the form of widgets. There a
   - [Nextcloud System](#nextcloud-system)
   - [Nextcloud Stats](#nextcloud-stats)
   - [Nextcloud PHP OPcache](#nextcloud-php-opcache-stats)
+  - [Proxmox lists](#proxmox-lists)
   - [Sabnzbd](#sabnzbd)
   - [Gluetun VPN Info](#gluetun-vpn-info)
+  - [Drone CI Build](#drone-ci-builds)
+  - [Linkding](#linkding)
+  - [Uptime Kuma](#uptime-kuma)
+  - [Tactical RMM](#tactical-rmm)
 - **[System Resource Monitoring](#system-resource-monitoring)**
   - [CPU Usage Current](#current-cpu-usage)
   - [CPU Usage Per Core](#cpu-usage-per-core)
@@ -83,6 +93,7 @@ Dashy has support for displaying dynamic content in the form of widgets. There a
   - [Widget Usage Guide](#widget-usage-guide)
   - [Continuous Updates](#continuous-updates)
   - [Proxying Requests](#proxying-requests)
+  - [Handling Secrets](#handling-secrets)
   - [Setting Timeout](#setting-timeout)
   - [Adding Labels](#adding-labels)
   - [Ignoring Errors](#ignoring-errors)
@@ -143,6 +154,8 @@ A simple, live-updating local weather component, showing temperature, conditions
 **`city`** | `string` | Required | A city name to use for fetching weather. This can also be a state code or country code, following the ISO-3166 format
 **`units`** | `string` |  _Optional_ | The units to use for displaying data, can be either `metric` or `imperial`. Defaults to `metric`
 **`hideDetails`** | `boolean` |  _Optional_ | If set to `true`, the additional details (wind, humidity, pressure, etc) will not be shown. Defaults to `false`
+**`lat`** | `number` |  _Optional_ | To show weather for a specific location, you can provide the latitude and longitude coordinates. If provided, this will override the `city` option
+**`lon`** | `number` |  _Optional_ | To show weather for a specific location, you can provide the latitude and longitude coordinates. If provided, this will override the `city` option
 
 #### Example
 
@@ -152,7 +165,7 @@ A simple, live-updating local weather component, showing temperature, conditions
     apiKey: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     city: London
     units: metric
-    hideDetails: false
+    hideDetails: true
 ```
 
 #### Info
@@ -215,6 +228,7 @@ Display news and updates from any RSS-enabled service.
 **`limit`** | `number` |  _Optional_ | The number of posts to return. If you haven't specified an API key, this will be limited to 10
 **`orderBy`** | `string` |  _Optional_ | How results should be sorted. Can be either `pubDate`, `author` or `title`. Defaults to `pubDate`
 **`orderDirection`** | `string` |  _Optional_ | Order direction of feed items to return. Can be either `asc` or `desc`. Defaults to `desc`
+**`parseLocally`** | `boolean`     |  _Optional_ | If true parse the rss feed locally instead of using the rss2json API.
 
 #### Example
 
@@ -274,7 +288,7 @@ Unless image fetched from remote source, no external data request is made.
 
 ### Public IP
 
-Often find yourself searching "What's my IP", just so you can check your VPN is still connected? This widget displays your public IP address, along with ISP name and approx location. Data can be fetched from either [IpApi.co](https://ipapi.co/), [IP-API.com](https://ip-api.com/) or [IpGeolocation.io](https://ipgeolocation.io/).
+Often find yourself searching "What's my IP", just so you can check your VPN is still connected? This widget displays your public IP address, along with ISP name and approx location. Data can be fetched from either [IpApi.co](https://ipapi.co/), [IP-API.com](https://ip-api.com/), [IpGeolocation.io](https://ipgeolocation.io/) or [IP2Location.io](https://ip2location.io/).
 
 <p align="center"><img width="400" src="https://i.ibb.co/vc3c8zN/public-ip.png" /></p>
 
@@ -284,8 +298,8 @@ _All fields are optional._
 
 **Field** | **Type** | **Required** | **Description**
 --- | --- | --- | ---
-**`provider`** | `string` |  _Optional_ | The name of the service to fetch IP address from. Can be either `ipapi.co`, `ip-api` or `ipgeolocation`. Defaults to `ipapi.co`. Note, `ip-api` doesn't work on HTTPS, and if you set to `ipgeolocation` then you must also provide an API key
-**`apiKey`** | `string` |  _Optional_ | Only required if provider is set to `ipgeolocation`. You can get a free API key [here](https://ipgeolocation.io/signup.html)
+**`provider`** | `string` |  _Optional_ | The name of the service to fetch IP address from. Can be either `ipapi.co`, `ip-api`, `ipgeolocation` or `ip2location.io`. Defaults to `ipapi.co`. Note, `ip-api` doesn't work on HTTPS, and if you set to `ipgeolocation` or `ip2location.io` then you must also provide an API key
+**`apiKey`** | `string` |  _Optional_ | Only required if provider is set to `ipgeolocation` or `ip2location.io`. You can get a free IPGeolocation API key [here](https://ipgeolocation.io/signup.html) or a free IP2Location.io API key [here](https://ip2location.io/pricing)
 
 #### Example
 
@@ -308,7 +322,7 @@ Or
 - **Auth**: 🟠 Optional
 - **Price**: 🟢 Free
 - **Host**: Managed Instance Only
-- **Privacy**: _See [IPGeoLocation Privacy Policy](https://ipgeolocation.io/privacy.html) or [IP-API Privacy Policy](https://ip-api.com/docs/legal)_
+- **Privacy**: _See [IPGeoLocation Privacy Policy](https://ipgeolocation.io/privacy.html) or [IP-API Privacy Policy](https://ip-api.com/docs/legal) or [IP2Location.io Privacy Policy](https://ip2location.io/privacy-policy)
 
 ---
 
@@ -560,11 +574,11 @@ _No Options._
 
 ---
 
-### AnonAddy
+### addy.io
 
-[AnonAddy](https://anonaddy.com/) is a free and open source mail forwarding service. Use it to protect your real email address, by using a different alias for each of your online accounts, and have all emails land in your normal inbox(es). Supports custom domains, email replies, PGP-encryption, multiple recipients and more
+[addy.io](https://addy.io/) is a free and open source mail forwarding service. Use it to protect your real email address, by using a different alias for each of your online accounts, and have all emails land in your normal inbox(es). Supports custom domains, email replies, PGP-encryption, multiple recipients and more
 
-This widget display email addresses / aliases from AnonAddy. Click an email address to copy to clipboard, or use the toggle switch to enable/ disable it. Shows usage stats (bandwidth, used aliases etc), as well as total messages received, blocked and sent. Works with both self-hosted and managed instances of AnonAddy.
+This widget display email addresses / aliases from addy.io. Click an email address to copy to clipboard, or use the toggle switch to enable/ disable it. Shows usage stats (bandwidth, used aliases etc), as well as total messages received, blocked and sent. Works with both self-hosted and managed instances of addy.io.
 
 <p align="center"><img width="400" src="https://i.ibb.co/ZhfyRdV/anonaddy.png" /></p>
 
@@ -572,8 +586,8 @@ This widget display email addresses / aliases from AnonAddy. Click an email addr
 
 **Field** | **Type** | **Required** | **Description**
 --- | --- | --- | ---
-**`apiKey`** | `string` |  Required | Your AnonAddy API Key / Personal Access Token. You can generate this under [Account Settings](https://app.anonaddy.com/settings)
-**`hostname`** | `string` |  _Optional_ | If your self-hosting AnonAddy, then supply the host name. By default it will use the public hosted instance
+**`apiKey`** | `string` |  Required | Your addy.io API Key / Personal Access Token. You can generate this under [Account Settings](https://app.addy.io/settings)
+**`hostname`** | `string` |  _Optional_ | If your self-hosting addy.io, then supply the host name. By default it will use the public hosted instance
 **`apiVersion`** | `string` |  _Optional_ | If you're using an API version that is not version `v1`, then specify it here
 **`limit`** | `number` |  _Optional_ | Limit the number of emails shown per page. Defaults to `10`
 **`sortBy`** | `string` |  _Optional_ | Specify the sort order for email addresses. Defaults to `updated_at`. Can be either: `local_part`, `domain`, `email`, `emails_forwarded`, `emails_blocked`, `emails_replied`, `emails_sent`, `created_at`, `updated_at` or `deleted_at`. Precede with a `-` character to reverse order.
@@ -601,7 +615,7 @@ This widget display email addresses / aliases from AnonAddy. Click an email addr
 - **Auth**: 🔴 Required
 - **Price**: 🟠 Free for Self-Hosted / Free Plan available on managed instance or $1/month for premium
 - **Host**: Self-Hosted or Managed
-- **Privacy**: _See [AnonAddy Privacy Policy](https://anonaddy.com/privacy/)_
+- **Privacy**: _See [addy.io Privacy Policy](https://addy.io/privacy/)_
 
 ---
 
@@ -692,6 +706,8 @@ Display current FX rates in your native currency. Hover over a row to view more 
 
 Counting down to the next day off work? This widget displays upcoming public holidays for your country. Data is fetched from [Enrico](http://kayaposoft.com/enrico/)
 
+Note, config for this widget is case-sensetive (see [#1268](https://github.com/Lissy93/dashy/issues/1268))
+
 <p align="center"><img width="400" src="https://i.ibb.co/VC6fZqn/public-holidays.png" /></p>
 
 #### Options
@@ -702,6 +718,7 @@ Counting down to the next day off work? This widget displays upcoming public hol
 **`state`** | `string` |  **Optional** | restrict a country to a specific state defined by [ISO_3166-2](https://en.wikipedia.org/wiki/ISO_3166-2), e.g. `LND`.
 **`holidayType`** | `string` |  **Optional** | The type of holidays to fetch. Can be: `all`, `public_holiday`, `observance`, `school_holiday`, `other_day` or `extra_working_day`. Defaults to `public_holiday`
 **`monthsToShow`** | `number` |  **Optional** | The number of months in advance to show. Min: `1`, max: `24`. Defaults to `12`
+**`lang`** | `string` |  **Optional** | The language in which the events should be. Usually local languages and english are available. Default to first available in the country. e.g. `en` or `fr`.
 
 #### Example
 
@@ -712,6 +729,7 @@ Counting down to the next day off work? This widget displays upcoming public hol
     region: LND
     holidayType: all
     monthsToShow: 12
+    lang: en
 ```
 
 #### Info
@@ -1143,7 +1161,7 @@ Display stats from your GitHub profile, using embedded cards from [anuraghazra/g
 
 ### HealthChecks Status
 
-Display status of one or more HealthChecks project(s). Works with healthcheck.io and your selfhosted instance.
+Display status of one or more HealthChecks project(s). Works with healthchecks.io and your selfhosted instance.
 
 <p align="center"><img width="380" src="https://i.ibb.co/W5dP6VN/Bildschirm-foto-2023-01-07-um-11-07-11.png" /></p>
 
@@ -1173,10 +1191,199 @@ Display status of one or more HealthChecks project(s). Works with healthcheck.io
 
 ---
 
+### Hackernews Trending
+
+Display new and trending Posts from Hackernews
+
+#### Options
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`stories`** | `string` |  _Optional_ | HN Stories to display defaults to `topstories`. Options are: `beststories`, `topstories` or `newstories`
+**`limit`** | `int` |  _Optional_ | The size of the list of Posts to show.
+
+##### Example
+
+```yaml
+- type: hackernews-trending
+  options:
+    stories: newstories
+    limit: 10
+```
+
+---
+
+### MVG Departure
+
+Display departure time of a MVG (Münchner Verkehrs Gesellschaft) station.
+
+From https://www.mvg.de/impressum.html:
+
+> [...] Die Verarbeitung unserer Inhalte oder Daten durch Dritte erfordert unsere ausdrückliche Zustimmung. Für private, nicht-kommerzielle Zwecke, wird eine gemäßigte Nutzung ohne unsere ausdrückliche Zustimmung geduldet. Jegliche Form von Data-Mining stellt keine gemäßigte Nutzung dar.[...]
+
+In other words: Private, noncomercial, moderate use of the API is tolerated. They don’t consider data mining as moderate use. (This is not a legal advice)
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`location`** | `string` |  Required | The name of the location (exact) or the location id, startin with `de:09162:`
+**`limit`** | `integer` |  _Optional_ | Limit number of entries, defaults to 10.
+**`title`** | `string` |  _Optional_ | A custom title to be displayed.
+**`header`** | `bool` |  _Optional_ | Shall the title be shown?
+**`filters`** | `object` |  _Optional_ | Filter results
+**`filters.line`** | `string/array` |  _Optional_ | Filter results for given line(s).
+**`filters.product`** | `string/array` |  _Optional_ | Filter results for specific product (TRAM, UBAHN, SBAHN, BUS).
+**`filters.destination`** | `string/object` |  _Optional_ | Filter results for specific destination(s)
+
+```yaml
+- type: mvg
+  options:
+    location: Marienplatz
+    limit: 5
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Not Required
+- **Price**: 🟢 Free / Private use only
+- **Host**: [MVG](https://mvg.de)
+- **Privacy**: _See [MVG Datenschutz](https://www.mvg.de/datenschutz-mvg.html)_
+
+---
+
+### MVG Connection
+
+Display the next connection for two addresses/coordinates, stations or POI within Munich using MVG MVG (Münchner Verkehrs Gesellschaft).
+
+From https://www.mvg.de/impressum.html:
+
+> [...] Die Verarbeitung unserer Inhalte oder Daten durch Dritte erfordert unsere ausdrückliche Zustimmung. Für private, nicht-kommerzielle Zwecke, wird eine gemäßigte Nutzung ohne unsere ausdrückliche Zustimmung geduldet. Jegliche Form von Data-Mining stellt keine gemäßigte Nutzung dar.[...]
+
+In other words: Private, noncomercial, moderate use of the API is tolerated. They don’t consider data mining as moderate use. (This is not a legal advice)
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`origin`** | `string` |  Required | Origin of the connection.
+**`destination`** | `string` |  Required | Destination of the connection.
+**`title`** | `string` |  _Optional_ | A custom title to be displayed.
+**`header`** | `bool` |  _Optional_ | Shall the title be shown?
+**`filters`** | `object` |  _Optional_ | Filter results
+**`filters.line`** | `string/array` |  _Optional_ | Filter results for given line(s).
+**`filters.product`** | `string/array` |  _Optional_ | Filter results for specific product (TRAM, UBAHN, SBAHN, BUS).
+**`filters.destination`** | `string/object` |  _Optional_ | Filter results for specific destination(s)
+
+```yaml
+- type: mvg-connection
+  options:
+    from: Marienplatz
+    from: Dachauer Straße 123
+    header: true
+    filters:
+      product: [UBAHN]
+      line: [U1,U2,U4,U5]
+
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Not Required
+- **Price**: 🟢 Free / Private use only
+- **Host**: [MVG](https://mvg.de)
+- **Privacy**: _See [MVG Datenschutz](https://www.mvg.de/datenschutz-mvg.html)_
+
+---
+
+### Custom search
+
+Allows web search using multiple user-defined search engines and other websites.
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`engines`** | `array` |  required | An array of search engine objects. Each search engine object should have two required properties: **title** and **url**. See the example below.
+**`placeholder`** | `string` |  optional | Placeholder text in the search box.
+
+#### Notes
+- The first search engine in the engines array will be treated as the default search engine, and used when the user presses `Enter` in the search box.
+- Popup blockers can interfere with opening a new search window.
+
+#### Example
+
+This widget allows searching multiple search engines from dashy.
+```yaml
+  - type: 'custom-search'
+    options:
+      placeholder: Search for something using the buttons below
+      engines:
+      - title: SearXNG
+        url: https://searx.lan/?q=
+      - title: Quant
+        url: https://www.qwant.com/?q=
+      - title: Bing Web
+        url: http://www.bing.com/search?q=
+      - title: Bing Images
+        url: http://www.bing.com/images/search?q=
+      - title: Bing Maps
+        url: http://www.bing.com/maps/search?q=
+      - title: Yandex
+        url: https://www.yandex.com/search/?text=
+      - title: Passmark
+        url: https://www.passmark.com/search/zoomsearch.php?zoom_query=
+      - title: IMDB
+        url: http://www.imdb.com/find?q=
+```
+#### Info
+
+- **CORS**: 🟢 Not needed
+- **Auth**: 🟢 Not Required
+- **Price**: 🟢 Free 
+- **Host**: user defined
+- **Privacy**: depends on the user defined search engines.
+
+---
+
+### RescueTime Overview
+
+Show an overview of how you have spent your time for the current day.
+
+<p align="center"><img width="400" src="https://i.ibb.co/bvx3PQM/rescuetime.png" /></p>
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`apiKey`** | `string` |  required | The API-Key generated in the RescueTime UI.
+
+
+#### Example
+
+```yaml
+  - type: rescue-time
+    useProxy: true
+    options:
+      apiKey: abcdefghijkl_mnop
+```
+#### Info
+
+- **CORS**: 🟢 Required
+- **Auth**: 🔴 Required
+- **Price**: 🟠 Depends on user subscription 
+- **Host**: [RescueTime](https://www.rescuetime.com)
+- **Privacy**: _See [RescueTime Privacy](https://www.rescuetime.com/privacy)_
+
+---
+
+
+
 ## Self-Hosted Services Widgets
 
 ### System Info
-
+_See [MVG Datenschutz](https://www.mvg.de/datenschutz-mvg.html)_
 Displays info about the server which Dashy is hosted on. Includes user + host, operating system, uptime and basic memory & load data.
 
 <p align="center"><img width="400" src="https://i.ibb.co/rvDPBDF/system-info.png" /></p>
@@ -1348,6 +1555,19 @@ Displays the number of queries blocked by [Pi-Hole](https://pi-hole.net/).
     hostname: http://192.168.130.1
     apiKey: xxxxxxxxxxxxxxxxxxxxxxx
 ```
+
+> [!TIP]
+> In order to avoid leaking secret data, both `hostname` and `apiKey` can leverage environment variables. Simply pass the name of the variable, which MUST start with `VUE_APP_`.
+
+```yaml
+- type: pi-hole-stats
+  options:
+    hostname: VUE_APP_pihole_ip
+    apiKey: VUE_APP_pihole_key
+```
+
+> [!IMPORTANT]
+> You will need to restart the server (or the docker image) if adding/editing an env var for this to be refreshed.
 
 #### Info
 
@@ -1754,7 +1974,7 @@ Displays your notifications and allows deleting them.
 #### Example
 
 ```yaml
-- type: nextcloud-userstatus
+- type: nextcloud-notifications
   useProxy: true
   options:
     hostname: https://nextcloud.example.com
@@ -1860,7 +2080,7 @@ Shows statistics about PHP OPcache performance on your Nextcloud server.
 #### Example
 
 ```yaml
-- type: nextcloud-stats
+- type: nextcloud-php-opcache
   useProxy: true
   options:
     hostname: https://nextcloud.example.com
@@ -1875,6 +2095,73 @@ Shows statistics about PHP OPcache performance on your Nextcloud server.
 - **Price**: 🟢 Free
 - **Host**: Self-Hosted (see [Nextcloud](https://nextcloud.com))
 - **Privacy**: _See [Nextcloud Privacy Policy](https://nextcloud.com/privacy)_
+
+
+---
+
+### Proxmox lists
+
+Shows lists of nodes, containers, and VMs in a Proxmox virtual environment cluster, with a status indicator.
+
+#### Options
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`cluster_url`** | `string` |  Required | The URL of the proxmox cluster server. No trailing `/`. for example: `https://proxmox.lan:8006`
+**`user_name`** | `string` |  Required | A Proxmox API Username, for example `root@pam` or `dashy@pve`.
+**`token_name`** | `string` |  Required | A Proxmox API token name. You can get a token in the API section of the cluster management interface.
+**`token_uuid`** | `string` |  Required | The value of the token entered above. This is normally a UUID. 
+**`node`** | `string` |  optional | A Proxmox node name. If empty or not supplied, a list of nodes will be shown.
+**`node_data`** | `string` |  optional | This is required if a node is selected, Currently this accepts two values, either `lxc` or `qemu` but the widget can be improved to get other types of data from the Proxmox API.
+**`title`** | `string` |  optional | A widget title.
+**`title_as_link`** | `boolean` |  optional | When this is set to anything other than 0 or false, the title will be linked to the value entered in the `cluster_url` option.
+**`footer`** | `string` |  optional | A widget footer.
+**`footer_as_link`** | `boolean` |  optional | When this is set to anything other than 0 or false, the title will be linked to the value entered in the `cluster_url` option.
+**`hide_templates`** | `boolean` |  optional | When this is set to anything other than 0 or false, templates will be filtered out of the result list.
+
+#### Example
+This will show the list of nodes.
+```yaml
+  - type: proxmox-lists
+    useProxy: true 
+    options:
+      cluster_url: https://proxmox.lan:8006
+      user_name: root@pam
+      token_name: dashy
+      token_uuid: bfb152df-abcd-abcd-abcd-ccb95a472d01
+```
+
+This will show the list of VMs, with a title and a linked fotter, hiding VM templates.
+
+```yaml
+  - type: proxmox-lists
+    useProxy: true 
+    options:
+      cluster_url: https://proxmox.lan:8006
+      user_name: root@pam
+      token_name: dashy
+      token_uuid: bfb152df-abcd-abcd-abcd-ccb95a472d01
+      node: proxmox
+      node_data: qemu
+      title: Proxmox VMs
+      title_as_link: false
+      footer: Proxmox
+      footer_as_link: true
+      hide_templates: 1
+```
+
+#### Info
+
+- **CORS**: 🟠 Proxied
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Proxmox Virtual Environment](https://proxmox.com/en/proxmox-ve))
+- **Privacy**: _See [Proxmox's Privacy Policy](https://proxmox.com/en/privacy-policy)_
+
+#### Troubleshooting
+- **404 Error in development mode**: The error might disappear in production mode `yarn start`
+- **500 Error in production mode**: Try adding the certificate authority (CA) certificate of your Proxmox host to Node.js. 
+  - Download the Proxmox CA certificate to your Dashy host.
+  - Export environment variable `NODE_EXTRA_CA_CERTS` and set its value to the path of the downloaded CA certificate. Example:  `export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/devlab_ca.pem`
 
 ---
 
@@ -1947,17 +2234,173 @@ Display info from the Gluetun VPN container public IP API. This can show the IP 
 
 ---
 
+### Drone CI Builds
+
+Display the last builds from a [Drone CI](https://www.drone.ci) instance. A self-hosted CI system that uses docker.
+
+<p align="center"><img width="380" src="https://i.ibb.co/nQM3BXj/Bildschirm-foto-2023-01-07-um-01-31-45.png" /></p>
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`host`** | `string` |  Required | The hostname of the Drone CI instance.
+**`apiKey`** | `string` |  Required | The API key (https://[your-drone-instance]/account).
+**`limit`** | `integer` | _Optional_ | Limit the amounts of listed builds.
+**`repo`** | `string` | _Optional_ | Show only builds of the specified repo
+
+#### Example
+
+```yaml
+- type: drone-io
+  updateInterval: 30
+  options:
+    host: https://drone.somedomain.com
+    apiKey: my-very-secret-api-key
+    limit: 10
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Drone](https://www.drone.io))
+- **Privacy**: _See [Drone](https://www.drone.io)_
+
+---
+
+### Linkding
+
+Linkding is a self-hosted bookmarking service, which has a clean interface and is simple to set up. This lists the links, filterable by tags.
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`host`** | `string` |  Required | The hostname of the Drone CI instance.
+**`apiKey`** | `string` |  Required | The API key (https://your-linkding-instance/settings/integrations).
+**`tags`** | `list of string` | _Optional_ | Filter the links by tag.
+
+#### Example
+
+```yaml
+- type: linkding
+  updateInterval: 30
+  options:
+    host: https://lingding.somedomain.com
+    apiKey: my-very-secret-api-key
+    tags: 
+      - rpg
+      - markdown
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Linkding](https://github.com/sissbruecker/linkding))
+- **Privacy**: _See [Linkding](https://github.com/sissbruecker/linkding)_
+
+---
+
+### Uptime Kuma
+
+[Uptime Kuma](https://github.com/louislam/uptime-kuma) is an easy-to-use self-hosted monitoring tool.
+
+#### Options
+
+| **Field**    | **Type** | **Required** | **Description**                                                          |
+| ------------ | -------- | ------------ | ------------------------------------------------------------------------ |
+| **`url`**    | `string` | Required     | The URL of the Uptime Kuma instance                                      |
+| **`apiKey`** | `string` | Required     | The API key (see https://github.com/louislam/uptime-kuma/wiki/API-Keys). |
+
+#### Example
+
+```yaml
+- type: uptime-kuma
+  useProxy: true
+  options:
+    apiKey: uk2_99H0Yd3I2pPNIRfn0TqBFu4g5q85R1Mh75yZzw6H
+    url: http://192.168.1.106:3691/metrics
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Uptime Kuma](https://github.com/louislam/uptime-kuma) )
+- **Privacy**: _See [Uptime Kuma](https://github.com/louislam/uptime-kuma)_
+
+---
+
+### Tactical RMM
+
+[Tactical RMM](https://github.com/amidaware/tacticalrmm) is a self-hosted remote monitoring & management tool.
+
+<p align="center"><a href="https://ibb.co/NVHWpD1"><img src="https://i.ibb.co/ng5Qfd3/Capture.png" alt="Capture" border="0"></a></p>
+
+
+#### Options
+
+| **Field**    | **Type** | **Required** | **Description**                                                          |
+| ------------ | -------- | ------------ | ------------------------------------------------------------------------ |
+| **`url`**    | `string` | Required     | The status endpoint URL (https://api.example.com/core/status/)           |
+| **`token`**  | `string` | Required     | The MON_TOKEN (see https://docs.tacticalrmm.com/tipsntricks/#monitor-your-trmm-instance-via-the-built-in-monitoring-endpoint). |
+
+#### Example
+
+```yaml
+- type: trmm
+  useProxy: true
+  options:
+    token: PkPVKMzbmXgeQDlJWb0WXYvsIk3JvZyadURud2cSTdMia6hUbQ
+    url: https://api.example.com/core/status/
+```
+
+#### Info
+
+- **CORS**: 🟠 Proxied
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Tactical RMM](https://github.com/amidaware/tacticalrmm) )
+- **Privacy**: _See [Tactical RMM](https://github.com/amidaware/tacticalrmm)_
+
+
+---
+
 ## System Resource Monitoring
 
 ### Glances
-
 The easiest method for displaying system info and resource usage in Dashy is with [Glances](https://nicolargo.github.io/glances/).
 
 Glances is a cross-platform monitoring tool developed by [@nicolargo](https://github.com/nicolargo). It's similar to top/htop but with a [Rest API](https://glances.readthedocs.io/en/latest/api.html) and many [data exporters](https://glances.readthedocs.io/en/latest/gw/index.html) available. Under the hood, it uses [psutil](https://github.com/giampaolo/psutil) for retrieving system info.
 
 If you don't already have it installed, either follow the [Installation Guide](https://github.com/nicolargo/glances/blob/master/README.rst) for your system, or setup [with Docker](https://glances.readthedocs.io/en/latest/docker.html), or use the one-line install script: `curl -L https://bit.ly/glances | /bin/bash`.
 
+If you are using Docker to run glances make sure to add the enviroment variable `-e TZ = {YourTimeZone}`. You can get a list of valid timezones by running `timedatectl list-timezones` on any linux system. This is needed so the graphs show the currect time.
+
+Here an example for Docker
+```
+ docker run -d \
+    --name glances \
+    --restart unless-stopped \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    -p 61208:61208 \
+    --pid host \
+    --privileged \
+    -e GLANCES_OPT=-w \
+    -e PUID=1000 \
+    -e PGID=1000 \
+    -e TZ=Europe/Zurich \
+    nicolargo/glances:latest
+```
+
 Glances can be launched with the `glances` command. You'll need to run it in web server mode, using the `-w` option for the API to be reachable. If you don't plan on using the Web UI, then you can disable it using `--disable-webui`. See the [command reference docs](https://glances.readthedocs.io/en/latest/cmds.html) for more info.
+
+If Glaces is running on a Windows system it is recommanded to add the following arguments ```--disable-plugin all --enable-plugin cpu,mem,diskio,ip,network,containers,quicklook,load,fs,alert -w``` This is due to Glances not being that stable on windows, so disabling all plugins that aren't used by Dashy widgets can save on ressources.
 
 #### Options
 
@@ -1997,6 +2440,22 @@ Live-updating current CPU usage, as a combined average across all cores
 
 ```yaml
 - type: gl-current-cpu
+  options:
+    hostname: http://192.168.130.2:61208
+```
+
+---
+
+### Current CPU Usage Speedometer
+
+Speedometer styled version of the Current CPU Usage widget
+
+<p align="center"><img width="400" src="https://i.ibb.co/7RHTRNq/gl-cpu-speedometer.png" /></p>
+
+#### Example
+
+```yaml
+- type: gl-cpu-speedometer
   options:
     hostname: http://192.168.130.2:61208
 ```
@@ -2052,6 +2511,22 @@ Real-time memory usage gauge, with more info visible on click
 
 ```yaml
 - type: gl-current-mem
+  options:
+    hostname: http://192.168.130.2:61208
+```
+
+---
+
+### Current Memory Usage Speedometer
+
+Speedometer styled version of the Current Memory Usage widget
+
+<p align="center"><img width="400" src="https://i.ibb.co/wsNW7Xr/gl-mem-speedometer.png" /></p>
+
+#### Example
+
+```yaml
+- type: gl-mem-speedometer
   options:
     hostname: http://192.168.130.2:61208
 ```
@@ -2219,12 +2694,19 @@ You'll need to enable the sensors plugin to use this widget, using: `--enable-pl
 
 <p align="center"><img width="400" src="https://i.ibb.co/xSs4Gqd/gl-cpu-temp.png" /></p>
 
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`units`** | `string` |  _Optional_ | Use `C` to display temperatures in Celsius or `F` to use Fahrenheit. Defaults to `C`.
+
 #### Example
 
 ```yaml
 - type: gl-cpu-temp
   options:
     hostname: http://192.168.130.2:61208
+    units: C
 ```
 
 ---
@@ -2411,6 +2893,32 @@ Vary: Origin
 
 ---
 
+### Handling Secrets
+
+Some widgets require you to pass potentially sensetive info such as API keys. The `conf.yml` is not ideal for this, as it's stored in plaintext.
+Instead, for secrets you should use environmental vairables.
+
+You can do this, by setting the environmental variable name as the value, instead of the actual key, and then setting that env var in your container or local environment.
+
+The key can be named whatever you like, but it must start with `VUE_APP_` (to be picked up by Vue). If you need to update any of these values, a rebuild is required (this can be done under the Config menu in the UI, or by running `yarn build` then restarting the container).
+
+For more infomation about setting and managing your environmental variables, see [Management Docs --> Environmental Variables](/docs/management.md#passing-in-environmental-variables).
+
+For example:
+
+```yaml
+- type: weather
+  options:
+    apiKey: VUE_APP_WEATHER_TOKEN
+    city: London
+    units: metric
+    hideDetails: true
+```
+
+Then, set `VUE_APP_WEATHER_TOKEN='xxx'`
+
+---
+
 ### Setting Timeout
 
 If the endpoint you are requesting data from is slow to respond, you may see a timeout error in the console. This can easily be fixed by specifying the `timeout` property on the offending widget. This should be an integer value, in milliseconds. By default timeout is `2500` ms (2½ seconds).
@@ -2523,7 +3031,7 @@ Widgets cannot currently be edited through the UI. This feature is in developmen
 
 Widgets are built in a modular fashion, making it easy for anyone to create their own custom components.
 
-For a full tutorial on creating your own widget, you can follow [this guide](/docs/development-guides.md#building-a-widget), or take a look at [here](https://github.com/Lissy93/dashy/commit/3da76ce2999f57f76a97454c0276301e39957b8e) for a code example.
+For a full tutorial on creating your own widget, you can follow [this guide](/docs/development-guides.md/#building-a-widget), or take a look at [here](https://github.com/Lissy93/dashy/commit/3da76ce2999f57f76a97454c0276301e39957b8e) for a code example.
 
 Alternatively, for displaying simple data, you could also just use the either the [iframe](#iframe-widget), [embed](#html-embedded-widget), [data feed](#data-feed) or [API response](#api-response) widgets.
 
@@ -2541,9 +3049,9 @@ Please only request widgets for services that:
 - Allow for use in their Terms of Service
 - Would be useful for other users
 
-You can suggest a widget [here](https://git.io/Jygo3), please star the repo before submitting a ticket. If you are a monthly GitHub sponsor, I will happily build out a custom widget for any service that meets the above criteria, usually 2 within weeks of initial request.
+You can suggest a widget [here](https://git.io/Jygo3), please star the repo before submitting a ticket. If you are a monthly GitHub sponsor, I will happily build out a custom widget for any service that meets the above criteria, usually within 2 weeks of initial request.
 
-For services that are not officially supported, it is likely still possible to display data using either the [iframe](#iframe-widget), [embed](#html-embedded-widget) or [API response](#api-response) widgets. For more advanced features, like charts and action buttons, you could also build your own widget, using [this tutorial](/docs/development-guides.md#building-a-widget), it's fairly straight forward, and you can use an [existing widget](https://github.com/Lissy93/dashy/tree/master/src/components/Widgets) (or [this example](https://git.io/JygKI)) as a template.
+For services that are not officially supported, it is likely still possible to display data using either the [iframe](#iframe-widget), [embed](#html-embedded-widget) or [API response](#api-response) widgets. For more advanced features, like charts and action buttons, you could also build your own widget, using [this tutorial](/docs/development-guides.md/#building-a-widget), it's fairly straight forward, and you can use an [existing widget](https://github.com/Lissy93/dashy/tree/master/src/components/Widgets) (or [this example](https://git.io/JygKI)) as a template.
 
 ---
 
